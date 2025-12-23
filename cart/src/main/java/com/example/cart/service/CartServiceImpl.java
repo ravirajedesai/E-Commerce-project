@@ -55,7 +55,7 @@ public class CartServiceImpl implements CartServices{
         Cart cart=repository
                 .findByUserId(userId)
                 .orElseThrow(()->
-                        new CartNotFound("User Not Found.."+userId));
+                        new UserNotFound("User Not Found.."+userId));
         boolean removed=cart
                 .getItems()
                 .removeIf(i->i.getProductId().equals(productId));
