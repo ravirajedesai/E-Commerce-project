@@ -53,4 +53,14 @@ public class ProductsServiceImpl implements ProductsService{
                 products.getProductPrice()
         );
     }
+
+    @Override
+    public void reduceProductStock(Long productId, Double productStock) {
+        Products updateProducts=repository
+                .findById(productId)
+                .orElseThrow(()->
+                        new RuntimeException("Product Not Found.."+productId));
+        updateProducts.setProductQuantity(updateProducts.getProductQuantity()-productStock);
+        repository.save(updateProducts);
+    }
 }

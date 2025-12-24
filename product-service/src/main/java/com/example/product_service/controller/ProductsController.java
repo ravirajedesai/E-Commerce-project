@@ -9,8 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
-
 @RestController
 @RequestMapping("/products")
 @RequiredArgsConstructor
@@ -41,5 +39,12 @@ public class ProductsController {
     public ResponseEntity<ProductResponse> getProductById(@PathVariable Long productId){
         ProductResponse getById=service. getProductResponseByProductId(productId);
         return ResponseEntity.ok(getById);
+    }
+    @PostMapping("/products/reduce-stock")
+    public void reduceProductStock(
+            @RequestParam Long productId,
+            @RequestParam Double productStock
+    ){
+        service.reduceProductStock(productId,productStock);
     }
 }
