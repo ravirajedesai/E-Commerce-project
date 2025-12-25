@@ -8,17 +8,21 @@ import com.example.order_service.entity.Order;
 import com.example.order_service.entity.OrderItems;
 import com.example.order_service.exception.CartNotFound;
 import com.example.order_service.exception.OrderNotFound;
+import com.example.order_service.exception.ProductNotFound;
 import com.example.order_service.feinClient.CartClient;
 import com.example.order_service.feinClient.ProductClient;
 import com.example.order_service.feinClient.UserClient;
 import com.example.order_service.repository.OrderRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 public class OrderServiceImpl implements OrderService{
 
@@ -49,24 +53,26 @@ public class OrderServiceImpl implements OrderService{
     repository.deleteById(userId);
     }
     @Override
+    @Transactional
     public Order addOrder(Long userId) {
         UserResponse userResponse=userClient.getUserByUserId(userId);
-
         CartResponse cartResponse=cartClient.getCartByUserId(userId);
 
         if (cartResponse.getItems() == null || cartResponse.getItems().isEmpty()) {
             throw new CartNotFound("Cart is empty. Cannot place order.");
         }
-        try{
+
         for(CartItemResponse item : cartResponse.getItems()){
-            productClient.reduceProductStock(
+            boolean stockReduced=productClient.reduceProductStock(
                     item.getProductId(),
                     item.getProductQuantity()
             );
-        }} catch (Exception e) {
-            throw new RuntimeException("Order Failed..Product stock issue.");
+            if (!stockReduced) {
+                throw new ProductNotFound(
+                        "Insufficient stock for productId " + item.getProductId()
+                );
+            }
         }
-
         Order order=new Order();
         order.setUserId(userId);
         order.setOrderStatus("Placed..");

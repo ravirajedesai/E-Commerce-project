@@ -32,7 +32,7 @@ public class OrderItems {
     private Double productPrice;
 
     @Column(nullable = false)
-    private Double productQuantity;
+    private Integer productQuantity;
 
     @Column(nullable = false)
     private Double totalAmount;

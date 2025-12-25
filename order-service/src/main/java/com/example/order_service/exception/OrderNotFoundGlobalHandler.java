@@ -14,4 +14,8 @@ public class OrderNotFoundGlobalHandler {
     public ResponseEntity<String> CartNotFoundGlobalExceptionHandler(CartNotFound ex){
         return ResponseEntity.ok(ex.getMessage());
     }
+    @ExceptionHandler(ProductNotFound.class)
+    public ResponseEntity<String> ProductNotFoundGlobalExceptionHandler(ProductNotFound ex){
+        return ResponseEntity.ok(ex.getMessage());
+    }
 }

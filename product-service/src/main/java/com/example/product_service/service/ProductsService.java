@@ -14,5 +14,5 @@ public interface ProductsService {
 
     ProductResponse getProductResponseByProductId(Long productId);
 
-    void reduceProductStock(Long productId, Double productStock);
+    Boolean reduceProductStock(Long productId, Integer productStock);
 }

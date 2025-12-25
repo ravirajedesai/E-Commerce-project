@@ -2,6 +2,7 @@ package com.example.product_service.service;
 
 import com.example.product_service.dto.ProductResponse;
 import com.example.product_service.entity.Products;
+import com.example.product_service.exceptions.ProductNotFound;
 import com.example.product_service.repository.ProductsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -55,12 +56,18 @@ public class ProductsServiceImpl implements ProductsService{
     }
 
     @Override
-    public void reduceProductStock(Long productId, Double productStock) {
+    public Boolean reduceProductStock(Long productId, Integer productStock) {
         Products updateProducts=repository
                 .findById(productId)
                 .orElseThrow(()->
-                        new RuntimeException("Product Not Found.."+productId));
-        updateProducts.setProductQuantity(updateProducts.getProductQuantity()-productStock);
+                        new ProductNotFound("Product Not Found.."+productId));
+        if(updateProducts.getProductQuantity()<productStock){
+            throw new ProductNotFound("Insufficient Products.."+productId);
+        }
+        updateProducts.setProductQuantity(
+                updateProducts.getProductQuantity()-productStock);
+
         repository.save(updateProducts);
+        return true;
     }
 }

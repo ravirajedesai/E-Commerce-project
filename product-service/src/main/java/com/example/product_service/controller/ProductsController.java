@@ -40,11 +40,12 @@ public class ProductsController {
         ProductResponse getById=service. getProductResponseByProductId(productId);
         return ResponseEntity.ok(getById);
     }
-    @PostMapping("/products/reduce-stock")
-    public void reduceProductStock(
-            @RequestParam Long productId,
-            @RequestParam Double productStock
+    @PutMapping("/{productId}/reduce-stock/{quantity}")
+    public ResponseEntity<Boolean> reduceProductStock(
+            @PathVariable Long productId,
+            @PathVariable Integer quantity
     ){
-        service.reduceProductStock(productId,productStock);
+        boolean reduced=service.reduceProductStock(productId,quantity);
+        return ResponseEntity.ok(reduced);
     }
 }

@@ -22,7 +22,7 @@ public class Products {
     private String productDescription;
 
     @Column(nullable = false)
-    private Double productQuantity;
+    private Integer productQuantity;
 
     @Column(nullable = false)
     private String productCategory;
