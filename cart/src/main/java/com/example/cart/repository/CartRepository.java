@@ -1,5 +1,6 @@
 package com.example.cart.repository;
 
+import com.example.cart.dto.CartResponse;
 import com.example.cart.entity.Cart;
 import org.springframework.data.jpa.repository.JpaRepository;
 

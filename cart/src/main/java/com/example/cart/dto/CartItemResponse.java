@@ -12,6 +12,6 @@ public class CartItemResponse {
     private Long productId;
     private String productName;
     private Double productPrice;
-    private Double productQuantity;
+    private Integer productQuantity;
     private Double totalAmount;
 }

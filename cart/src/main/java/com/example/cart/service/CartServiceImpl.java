@@ -12,55 +12,62 @@ import com.example.cart.exceptions.UserNotFound;
 import com.example.cart.feignClient.ProductClient;
 import com.example.cart.feignClient.UserClient;
 import com.example.cart.repository.CartRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@RequiredArgsConstructor
 @Service
 public class CartServiceImpl implements CartServices{
 
-    @Autowired
-    CartRepository repository;
-    @Autowired
-    UserClient userClient;
-    @Autowired
-    ProductClient productClient;
+    private final CartRepository repository;
+
+    private final UserClient userClient;
+
+    private final ProductClient productClient;
 
     @Override
     public CartResponse showCartByUserId(Long userId) {
-        Cart cartById=repository.findByUserId(userId)
+        Cart cart=repository.findByUserId(userId)
                 .orElseThrow(()->new CartNotFound("Your Cart is Empty.."+userId));
 
-        List<CartItemResponse> items=cartById.getItems().stream()
-                .map(item->new CartItemResponse(
-                        item.getProductId(),
-                        item.getProductName(),
-                        item.getProductPrice(),
-                        item.getProductQuantity(),
-                        item.getTotalAmount()
-                ))
-                .toList();
+        if(cart.getItems().isEmpty()){
+            return new CartResponse(userId,0.0,List.of());
+        }
+        List<CartItemResponse> items=cart
+                                        .getItems()
+                                        .stream()
+                                        .map(item->new CartItemResponse(
+                                                item.getProductId(),
+                                                item.getProductName(),
+                                                item.getProductPrice(),
+                                                item.getProductQuantity(),
+                                                item.getTotalAmount()
+                                        ))
+                                        .toList();
 
         return new CartResponse(
-                cartById.getUserId(),
-                cartById.getTotalAmount(),
+                cart.getUserId(),
+                cart.getTotalAmount(),
                 items
         );
     }
     @Override
+    @Transactional
     public Cart removeItemFromCart(Long userId, Long productId) {
         Cart cart=repository
                 .findByUserId(userId)
-                .orElseThrow(()->
-                        new UserNotFound("User Not Found.."+userId));
+                .orElseThrow(()->new CartNotFound("Cart Not Found.."+userId));
         boolean removed=cart
                 .getItems()
                 .removeIf(i->i.getProductId().equals(productId));
         if(!removed){
-            throw new ProductNotFound("Product Not Removed..");
+            throw new ProductNotFound("Product Not Removed.."+productId);
         }
         Double total=cart
                 .getItems()
@@ -72,7 +79,7 @@ public class CartServiceImpl implements CartServices{
     }
 
     @Override
-    public Cart addItemsToCart(Long userId, Long productId, Double quantity) {
+    public Cart addItemsToCart(Long userId, Long productId, Integer quantity) {
         try {
             UserResponse userResponse = userClient.getUserByUserId(userId);
         }catch (Exception e){
@@ -94,11 +101,11 @@ public class CartServiceImpl implements CartServices{
                         .stream()
                         .filter(i->i.getProductId().equals(productId))
                         .findFirst();
-        if(existingItem.isPresent()){
 
+        if(existingItem.isPresent()){
             CartItem item=existingItem.get();
 
-            Double updatedQuantity=item.getProductQuantity() + quantity;
+            Integer updatedQuantity=item.getProductQuantity() + quantity;
             item.setProductQuantity(updatedQuantity);
             item.setTotalAmount(updatedQuantity * item.getProductPrice());
 

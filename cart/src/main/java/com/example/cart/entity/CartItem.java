@@ -2,12 +2,12 @@ package com.example.cart.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
-@Data
+//@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "cart_items")
@@ -31,7 +31,7 @@ public class CartItem {
     private Double productPrice;
 
     @Column(nullable = false)
-    private Double productQuantity;
+    private Integer productQuantity;
 
     @Column(nullable = false)
     private Double totalAmount;

@@ -23,10 +23,11 @@ public class UsersController {
     public ResponseEntity<Page<Users>>
     getAllUsers(@RequestParam(defaultValue = "1") int pageNo,
                 @RequestParam(defaultValue = "2") int pageSize,
-                @RequestParam(defaultValue = "userName") String sortBy){
+                @RequestParam(defaultValue = "userName") String sortBy,
+                @RequestParam(defaultValue = "ASC") String sortDir){
 
-        Page<Users> getAll=service.getAllUsers(pageNo,pageSize,sortBy);
-        return ResponseEntity.status(HttpStatus.OK).body(getAll);
+        Page<Users> getAll=service.getAllUsers(pageNo,pageSize,sortBy,sortDir);
+        return ResponseEntity.ok(getAll);
     }
     @DeleteMapping("/{id}")
     public ResponseEntity<Users> deleteByUserId(@PathVariable Long id){
@@ -36,17 +37,17 @@ public class UsersController {
     @PostMapping
     public ResponseEntity<Users> addUsers(@RequestBody Users users){
         Users addUser=service.addUser(users);
-        return ResponseEntity.status(HttpStatus.OK).body(addUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(addUser);
     }
     @GetMapping("/{id}")
     public ResponseEntity<Users> getUserById(@PathVariable Long id){
         Users byId=service.getUserById(id);
-        return ResponseEntity.status(HttpStatus.OK).body(byId);
+        return ResponseEntity.ok(byId);
     }
     @GetMapping("/users/{userId}")
     public ResponseEntity<UserResponse> findByUserId(@PathVariable Long userId){
         UserResponse byUserId=service.getByUserId(userId);
-        return ResponseEntity.status(HttpStatus.OK).body(byUserId);
+        return ResponseEntity.ok(byUserId);
 
     }
 }

@@ -9,7 +9,7 @@ public interface CartServices {
 
     CartResponse showCartByUserId(Long userId);
 
-    Cart addItemsToCart(Long userId,Long productId,Double quantity);
+    Cart addItemsToCart(Long userId,Long productId,Integer quantity);
 
     Cart removeItemFromCart(Long userId,Long productId);
 

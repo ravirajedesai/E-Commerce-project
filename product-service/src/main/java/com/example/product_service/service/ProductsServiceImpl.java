@@ -2,8 +2,10 @@ package com.example.product_service.service;
 
 import com.example.product_service.dto.ProductResponse;
 import com.example.product_service.entity.Products;
+import com.example.product_service.exceptions.InsufficientProductStock;
 import com.example.product_service.exceptions.ProductNotFound;
 import com.example.product_service.repository.ProductsRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -12,12 +14,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-
+@RequiredArgsConstructor
 @Service
 public class ProductsServiceImpl implements ProductsService{
 
-    @Autowired
-    ProductsRepository repository;
+    private final ProductsRepository repository;
 
     @Override
     public Page<Products> getAllProducts(int pageNo,
@@ -39,14 +40,16 @@ public class ProductsServiceImpl implements ProductsService{
 
     @Override
     public Products addProducts(Products products) {
-        Products add=repository.save(products);
-        return add;
+        return repository.save(products);
     }
 
     @Override
     public ProductResponse getProductResponseByProductId(Long productId) {
-        Products products=repository.findById(productId)
-                .orElseThrow(()->new RuntimeException("Product Not Found.."+productId));
+        Products products=repository
+                            .findById(productId)
+                            .orElseThrow(()->
+                                    new ProductNotFound("Product Not Found.."+productId));
+        //return new ProductResponse();//can sent blank ProductResponse
         return new ProductResponse(
                 products.getProductId(),
                 products.getProductName(),
@@ -57,17 +60,17 @@ public class ProductsServiceImpl implements ProductsService{
 
     @Override
     public Boolean reduceProductStock(Long productId, Integer productStock) {
-        Products updateProducts=repository
+        Products products=repository
                 .findById(productId)
                 .orElseThrow(()->
                         new ProductNotFound("Product Not Found.."+productId));
-        if(updateProducts.getProductQuantity()<productStock){
-            throw new ProductNotFound("Insufficient Products.."+productId);
+        if(products.getProductQuantity()<productStock){
+            throw new InsufficientProductStock("Insufficient Products.."+productId);
         }
-        updateProducts.setProductQuantity(
-                updateProducts.getProductQuantity()-productStock);
+        products.setProductQuantity(
+                products.getProductQuantity()-productStock);
 
-        repository.save(updateProducts);
+        repository.save(products);
         return true;
     }
 }

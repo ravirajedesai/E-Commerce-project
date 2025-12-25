@@ -7,7 +7,8 @@ import org.springframework.data.domain.Page;
 public interface UsersServices {
     Page<Users> getAllUsers(int pageNo,
                             int pageSize,
-                            String sortBy);
+                            String sortBy,
+                            String sortDir);
     Users getUserById(Long id);
     void deleteUserById(Long id);
     Users addUser(Users users);
